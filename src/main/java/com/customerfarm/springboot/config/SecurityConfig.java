@@ -54,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
             .and()
-            .formLogin().permitAll().successHandler(new SecurityHandler()).defaultSuccessUrl("/index.html", true)
+            .formLogin().permitAll()
             .and()
             .logout().permitAll()
             .and()
