@@ -55,7 +55,7 @@ public class FarmServiceTest {
     }
 
     @Test
-    public void shouldNotReturnAllFarmsWhenFindAll(){
+    public void shouldReturnAllFarmsWhenFindAll(){
 
         Mockito.lenient().when(farmRepo.findAll()).thenReturn(this.farms);
         assertEquals(this.farms, farmRepo.findAll());

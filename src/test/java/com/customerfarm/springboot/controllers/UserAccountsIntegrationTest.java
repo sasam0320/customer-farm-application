@@ -73,7 +73,7 @@ public class UserAccountsIntegrationTest {
 
         Farm farm2 = new Farm();
         farm2.setId(4L);
-        farm2.setName("Magic Walleye");
+        farm2.setName("Green Haven");
         farm2.setPrice(60200.00);
 
         this.farms = Arrays.asList(farm1, farm2);

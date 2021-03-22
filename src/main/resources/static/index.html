@@ -9,12 +9,12 @@
                xmlhttp.open("GET", baseurl, true);
                xmlhttp.onreadystatechange = function() {
                    if(xmlhttp.readyState ===4 && xmlhttp.status ===200){
-                       var persons = JSON.parse(xmlhttp.responseText);
-                       var tbltop = "<table><tr><th>Id</th><th>User Name</th><th>Password</th><th>Active</th></tr>";
+                       var users = JSON.parse(xmlhttp.responseText);
+                       var tbltop = "<table><tr><th>Id</th><th>User Name</th><th>Active</th></tr>";
                        var main = "";
                        for (i = 0; i < users.length; i++){
 
-                           main += "<tr><td>"+users[i].id+"</td><td>"+users[i].username+"</td><td>"+users[i].password+"</td><td>"+users[i].enabled+"</td></tr>";
+                           main += "<tr><td>"+users[i].id+"</td><td>"+users[i].username+"</td><td>"+users[i].enabled+"</td></tr>";
 
                        }
                        var tblbottom = "</table>";
