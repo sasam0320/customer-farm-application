@@ -8,6 +8,8 @@ public interface FarmService {
 
     List<Farm> findAll();
 
+    Farm findFarmById(long id);
+
     Farm findFarmByName(String name);
 
     Farm save(Farm farm);

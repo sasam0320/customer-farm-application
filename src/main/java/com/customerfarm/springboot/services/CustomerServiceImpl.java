@@ -34,7 +34,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Account findAccountById(long id) {
 
-        Account account = customerRepo.findAccountById(id).orElseThrow(() -> new AccountNotFoundException("Account not found for the customer id : " + id));
+        Account account = customerRepo.findAccountById(id).orElseThrow(() -> new AccountNotFoundException("Account not found for the customer id: " + id));
 
         return account;
     }

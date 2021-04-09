@@ -106,7 +106,7 @@ public class UserAccountsIntegrationTest {
         User sampleUser = this.users.get(0);
 
         given(userService.findAll()).willReturn(this.users);
-        this.mockMvc.perform(get("/users").secure(true))
+        this.mockMvc.perform(get("/users"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))

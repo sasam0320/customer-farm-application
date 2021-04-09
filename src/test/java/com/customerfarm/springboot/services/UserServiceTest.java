@@ -6,24 +6,30 @@ import com.customerfarm.springboot.model.Farm;
 import com.customerfarm.springboot.model.User;
 import com.customerfarm.springboot.repositories.UserRepo;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(MockitoExtension.class)
-@ExtendWith(SpringExtension.class)
+@RunWith(SpringRunner.class)
+@DataJpaTest
 public class UserServiceTest {
 
-    @Mock
+    @Autowired
     private UserRepo userRepo;
+
+    @Test
+    public void checkUsersCountFromRepo(){
+
+        assertEquals(3, userRepo.count());
+
+    }
 
 
     @Test
@@ -31,13 +37,13 @@ public class UserServiceTest {
 
         Long userId = 1L;
         String username = "mmarkovic";
-        String encodedPassword = "$2y$12$k4v0UJiVpqezTEOEtMiNRuyqM4139qASPa/dbgL2xXzolFNSvfvXG'";
+        String encodedPassword = "$2y$12$k4v0UJiVpqezTEOEtMiNRuyqM4139qASPa/dbgL2xXzolFNSvfvXG";
         boolean enabled = true;
 
-        User user = new User(username, encodedPassword, enabled);
-
-        Mockito.lenient().when(userRepo.findById(userId)).thenReturn(Optional.ofNullable(user));
-        assertEquals(user, userRepo.findById(userId).get());
+        Optional<User> userFound = userRepo.findById(userId);
+        assertThat(userFound).isNotEmpty();
+        assertThat(userFound).get().hasFieldOrPropertyWithValue("id", userId).hasFieldOrPropertyWithValue("username", username)
+                .hasFieldOrPropertyWithValue("password", encodedPassword).hasFieldOrPropertyWithValue("enabled", enabled);
 
     }
 
@@ -45,34 +51,32 @@ public class UserServiceTest {
     @Test
     public void shouldReturnUserWhenFindByUsername(){
 
-        String username = "balicic";
-        String encodedPassword = "$2y$12$k4v0UJiVpqezTEOEtMiNRuyqM4139qASPa/dbgL2xXzolFNSvfvXG'";
-        boolean enabled = true;
+        String username = "bmaric";
 
-        User user = new User(username, encodedPassword, enabled);
+        Optional<User> userFound = userRepo.findByUsername(username);
 
-        Mockito.lenient().when(userRepo.findByUsername(username)).thenReturn(Optional.ofNullable(user));
-        assertEquals(user, userRepo.findByUsername(username).get());
+        assertThat(userFound).isNotEmpty().get().hasFieldOrPropertyWithValue("username", username);
+
     }
 
     @Test
     public void shouldReturnUserWhenFindByUsernameAndPassword(){
 
         String username = "sasam0320";
-        String password = "Pass1234";
-        String encodedPassword = "$2y$12$k4v0UJiVpqezTEOEtMiNRuyqM4139qASPa/dbgL2xXzolFNSvfvXG'";
-        boolean enabled = true;
+        String encodedPassword = "$2y$12$k4v0UJiVpqezTEOEtMiNRuyqM4139qASPa/dbgL2xXzolFNSvfvXG";
 
-        User user = new User(username, encodedPassword, enabled);
+        Optional<User> userFound = userRepo.findByUsernameAndPassword(username, encodedPassword);
 
-        Mockito.lenient().when(userRepo.findByUsernameAndPassword(username, password)).thenReturn(Optional.ofNullable(user));
-        assertEquals(user, userRepo.findByUsernameAndPassword(username, password).get());
+        assertThat(userFound).isNotEmpty().get().hasFieldOrPropertyWithValue("username", username)
+                .hasFieldOrPropertyWithValue("password", encodedPassword)
+                .hasFieldOrPropertyWithValue("enabled", true);
+
     }
 
     @Test
     public void shouldReturnAccountListWhenFindAccountsById(){
 
-        Long userId = 1L;
+      Long userId = 1L;
         String username = "mmarkovic";
         String encodedPassword = "$2y$12$k4v0UJiVpqezTEOEtMiNRuyqM4139qASPa/dbgL2xXzolFNSvfvXG'";
         boolean enabled = true;
@@ -117,10 +121,9 @@ public class UserServiceTest {
         account1.setId(3L);
         account1.setUserInfo(userInfo);
 
-        List<Account> userAccounts = Arrays.asList(account1, account2, account3);
+        List<Account> userAccounts =userRepo.findAccountsById(userId) ;
 
-        Mockito.lenient().when(userRepo.findAccountsById(userId)).thenReturn(userAccounts);
-        assertEquals(userAccounts, userRepo.findAccountsById(userId));
+        assertThat(userAccounts).isNotEmpty().hasSize(3);
 
     }
 }

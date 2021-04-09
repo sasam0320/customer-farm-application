@@ -6,7 +6,6 @@ import com.customerfarm.springboot.model.Account;
 import com.customerfarm.springboot.model.User;
 import com.customerfarm.springboot.repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -26,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(long id) {
 
-        User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id : " + id));
+        User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
         return user;
     }
@@ -34,8 +33,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByUsername(String username) {
 
-        User user = userRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found with name : " + username));
-
+        User user = userRepo.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found with name: " + username));
         return user;
 
     }
@@ -43,10 +41,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByUsernameAndPassword(String username, String password) {
 
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
-        String encodedPassword = encoder.encode(password);
-
-        User user = userRepo.findByUsernameAndPassword(username, encodedPassword).orElseThrow(() -> new UserNotFoundException("User not found with usernname : " + username + " and password : " + password));
+        User user = userRepo.findByUsernameAndPassword(username, password)
+                .orElseThrow(() -> new UserNotFoundException("User not found with username : " + username + " and password: " + password));
         return user;
     }
 
@@ -55,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
         List<Account> accounts = userRepo.findAccountsById(id);
 
-        if(accounts==null || accounts.isEmpty()){
+        if (accounts == null || accounts.isEmpty()) {
 
             throw new AccountNotFoundException("Account not found with user id : " + id);
         }
@@ -76,9 +72,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public User delete(User user) {
 
-       userRepo.delete(user);
+        userRepo.delete(user);
 
-       return user;
+        return user;
 
     }
 }

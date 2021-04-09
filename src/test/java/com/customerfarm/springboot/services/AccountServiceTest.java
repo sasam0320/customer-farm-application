@@ -8,21 +8,21 @@ import com.customerfarm.springboot.model.User;
 import com.customerfarm.springboot.repositories.AccountRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-@ExtendWith(MockitoExtension.class)
-@ExtendWith(SpringExtension.class)
+@RunWith(SpringRunner.class)
+@DataJpaTest
 public class AccountServiceTest {
 
-    @Mock
+    @Autowired
     private AccountRepo accountRepo;
 
     private Account account;
@@ -38,7 +38,7 @@ public class AccountServiceTest {
         String encodedPassword = "$2y$12$k4v0UJiVpqezTEOEtMiNRuyqM4139qASPa/dbgL2xXzolFNSvfvXG'";
         boolean enabled = true;
 
-        this.userInfo = new User(username, encodedPassword, enabled);
+        this.userInfo = new User(1L, username, encodedPassword, enabled);
 
         Farm farm = new Farm();
         farm.setId(1L);
@@ -64,24 +64,42 @@ public class AccountServiceTest {
     }
 
     @Test
+    public void shouldReturnAllAccountsWhenFindAll(){
+
+        List<Account> accounts = accountRepo.findAll();
+
+        int numOfAccounts = 6;
+
+        assertThat(accounts).hasSize(numOfAccounts);
+
+    }
+
+    @Test
     public void shouldReturnAccountWhenFindById(){
 
-         Mockito.lenient().when(accountRepo.findById(this.account.getId())).thenReturn(Optional.ofNullable(this.account));
-         assertEquals(this.account, accountRepo.findById(this.account.getId()).get());
+        Optional<Account> accountFound = accountRepo.findById(this.account.getId());
+
+        assertThat(accountFound).isNotEmpty().get().hasFieldOrProperty("userInfo")
+                .hasFieldOrProperty("customer");
+
     }
 
     @Test
     public void shouldReturnUserWhenFindUserInfoById(){
 
-        Mockito.lenient().when(accountRepo.findUserInfoById(this.account.getId())).thenReturn(Optional.ofNullable(this.userInfo));
-        assertEquals(this.userInfo, accountRepo.findUserInfoById(this.account.getId()).get());
+        Optional<User> userFound = accountRepo.findUserInfoById(this.account.getId());
+
+         assertThat(userFound.get()).isNotNull().hasFieldOrPropertyWithValue("id", this.userInfo.getId());
     }
 
     @Test
     public void shouldReturnCustomerWhenFindCustomerById(){
 
-        Mockito.lenient().when(accountRepo.findCustomerById(this.account.getId())).thenReturn(Optional.ofNullable(this.customer));
-        assertEquals(this.customer, accountRepo.findCustomerById(this.account.getId()).get());
+        Optional<Customer> customerFound = accountRepo.findCustomerById(this.customer.getId());
+
+        assertThat(customerFound.get()).isNotNull().hasFieldOrPropertyWithValue("firstName", this.customer.getFirstName())
+                .hasFieldOrPropertyWithValue("lastName", this.customer.getLastName())
+                .hasFieldOrPropertyWithValue("email", this.customer.getEmail());
 
     }
 }

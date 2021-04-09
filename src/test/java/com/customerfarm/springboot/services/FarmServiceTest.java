@@ -5,22 +5,27 @@ import com.customerfarm.springboot.repositories.FarmRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-@ExtendWith(MockitoExtension.class)
-@ExtendWith(SpringExtension.class)
+@DataJpaTest
+@RunWith(SpringRunner.class)
 public class FarmServiceTest {
 
-    @Mock
+    @Autowired
     private FarmRepo farmRepo;
 
     private List<Farm> farms;
@@ -55,21 +60,28 @@ public class FarmServiceTest {
     }
 
     @Test
-    public void shouldReturnAllFarmsWhenFindAll(){
+    public void shouldNotReturnAllFarmsWhenFindAll(){
 
-        Mockito.lenient().when(farmRepo.findAll()).thenReturn(this.farms);
-        assertEquals(this.farms, farmRepo.findAll());
+        assertNotEquals(this.farms, farmRepo.findAll());
+    }
+
+    @Test
+    public void shouldReturnFarmWhenFindById(){
+
+        long farmId = 1L;
+
+        Optional<Farm> farmFound = farmRepo.findById(farmId);
+        assertThat(farmFound).isNotEmpty().get().hasFieldOrPropertyWithValue("id", farmId);
     }
 
     @Test
     public void shouldReturnFarmWhenFindByName(){
 
+        String name = this.farms.get(LIST_INDEX).getName();
+        Optional<Farm> farmFound = farmRepo.findByName(name);
 
-        String farmName = "Magic Walleye";
-        Farm farm = this.farms.get(LIST_INDEX);
-
-        Mockito.lenient().when(farmRepo.findFarmByName(farmName)).thenReturn(Optional.ofNullable(farm));
-        assertEquals(farm, farmRepo.findFarmByName(farmName).get());
+        assertThat(farmFound).isNotEmpty();
+        assertThat(farmFound.get()).hasFieldOrPropertyWithValue("name", name);
     }
 
 }
