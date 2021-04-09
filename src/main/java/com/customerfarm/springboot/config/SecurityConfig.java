@@ -1,6 +1,7 @@
 package com.customerfarm.springboot.config;
 
 import com.customerfarm.springboot.services.UserDetailsServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -11,13 +12,25 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Order(101)
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+
+    @Autowired
+    SecuritySuccessHandler successHandler;
+
+    @Autowired
+    SecurityFailureHandler failureHandler;
+
+
+    @Autowired
+    SecurityLogoutSuccessHandler logoutHandler;
+
+    @Autowired
+    SecurityAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -38,27 +51,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return authProvider;
     }
 
-    @Bean("securityHandler")
-    public AuthenticationSuccessHandler authenticationSuccessHandler(){
-        return new SecurityHandler();
-    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-            .antMatchers("/users").hasAnyAuthority("CREATOR", "ADMIN")
+                .antMatchers("/users").hasAnyAuthority("CREATOR", "ADMIN")
                 .antMatchers("/farms").hasAnyAuthority("USER", "CREATOR", "ADMIN")
                 .antMatchers("/accounts").hasAnyAuthority("ADMIN")
                 .antMatchers("/customers").hasAnyAuthority("USER", "CREATOR", "ADMIN")
                 .antMatchers("/").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated()
-            .and()
-            .formLogin().permitAll()
-            .and()
-            .logout().permitAll()
-            .and()
-            .exceptionHandling().accessDeniedPage("/403");
+                .and()
+                .formLogin().permitAll().successHandler(new SecuritySuccessHandler())
+                .and()
+                .logout().permitAll().logoutSuccessHandler(new SecurityLogoutSuccessHandler())
+                .and().exceptionHandling().accessDeniedHandler(new SecurityAccessDeniedHandler());
 
     }
 

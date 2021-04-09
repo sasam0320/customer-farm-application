@@ -14,12 +14,12 @@ import com.customerfarm.springboot.model.User;
 public interface UserRepo extends CrudRepository<User, Long> {
 	
 	List<User> findAll();
+
 	Optional<User> findById(long id);
 
 	Optional<User> findByUsername(String username);
 
-	@Query("SELECT u FROM User u WHERE u.username = :username AND u.password = :password")
-	Optional<User> findByUsernameAndPassword(String username, String password);
+	Optional<User> findByUsernameAndPassword(String user, String password);
 
 	@Query("SELECT u.accounts FROM User u WHERE u.id = :id")
 	List<Account> findAccountsById(long id);
